@@ -26,7 +26,8 @@ Books are life-changing. They have the power to enlighten, educate, entertain, h
 5. from the FE side send a request to the server on the route books
 
 ## Architecture
-Geting Date and render it by using React bootstrap carousel slides 
+
+![lab](/lab.png)
 
 ## Change Log
 
