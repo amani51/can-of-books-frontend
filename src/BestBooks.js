@@ -3,6 +3,7 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Carousel from "react-bootstrap/Carousel";
 import AddBook from "./Addbook";
+import UpdateBook from "./UpdateBook";
 
 class BestBooks extends React.Component {
   constructor(props) {
@@ -10,6 +11,8 @@ class BestBooks extends React.Component {
     this.state = {
       books: [],
       show: false,
+      showUpdateForm: false,
+      selectedBook:{}
     };
   }
 
@@ -33,14 +36,21 @@ class BestBooks extends React.Component {
       show: true,
     });
   };
+  showUpdateForm = (item) => {
+    this.setState({
+      showUpdateForm: true,
+      selectedBook: item
+    });
+  };
 
   handleClose = () => {
     this.setState({
       show: false,
+      showUpdateForm: false,
     });
   };
   createObj = (title, description, status) => {
-    console.log("from parent",title,description,status)
+    // console.log("from parent",title,description,status)
     const obj = {
           title : title,
           description : description,
@@ -74,6 +84,30 @@ class BestBooks extends React.Component {
       console.log(err);
     })
   }
+  updateBook=(event)=>{
+    event.preventDefault();
+    let obj={
+      title: event.target.title.value,
+      description:event.target.description.value,
+      status:event.target.options.value
+    }
+    // console.log("obj",obj)
+    const id = this.state.selectedBook._id;
+    // console.log("id",id)
+    axios
+    .put(`${process.env.REACT_APP_URL}books/${id}`, obj)
+    .then(result=>{
+      this.setState({
+        books: result.data,
+      })
+      this.handleClose();
+    })
+    .catch(err=>{
+      console.log(err);
+    })
+
+  }
+  
 
   render() {
     /* TODO: render all the books in a Carousel */
@@ -96,7 +130,12 @@ class BestBooks extends React.Component {
           show={this.state.show}
           handleClose={this.handleClose}
           createObj={this.createObj}
-          // AddBook={this.AddBook()}
+        />
+        <UpdateBook
+        show={this.state.showUpdateForm}
+        handleClose={this.handleClose}
+        updateBook={this.updateBook}
+        selectedBook={this.state.selectedBook}
         />
         {this.state.books.length ? (
           <div style={{ width: "600px", margin: "20px 300px 20px 350px" }}>
@@ -113,7 +152,9 @@ class BestBooks extends React.Component {
                       <h3>{item.title}</h3>
                       <p>{item.description}</p>
                       <p>{item.status}</p> 
-                      <button onClick={() => this.deleteBook(item._id)}> Delete</button>
+                      <button onClick={() => this.deleteBook(item._id)}
+                      style={{ marginRight: "15px" }}> Delete</button>
+                      <button onClick={() => this.showUpdateForm(item)}> Update</button>
                     </Carousel.Caption>
                     
                   </Carousel.Item>
