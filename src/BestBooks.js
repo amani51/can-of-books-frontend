@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Carousel from "react-bootstrap/Carousel";
 import AddBook from "./Addbook";
 import UpdateBook from "./UpdateBook";
+import { withAuth0 } from "@auth0/auth0-react";
 
 class BestBooks extends React.Component {
   constructor(props) {
@@ -18,8 +19,10 @@ class BestBooks extends React.Component {
 
   /* TODO: Make a GET request to your API to fetch all the books from the database  */
   componentDidMount = () => {
+    const user = this.props.auth0;
     axios
-      .get(`${process.env.REACT_APP_URL}books`)
+      .get(`${process.env.REACT_APP_URL}books?email=${user.user.email}`)
+      // console.log("email",user.user.email)
       .then((result) => {
         console.log(result.data);
         this.setState({
@@ -51,10 +54,13 @@ class BestBooks extends React.Component {
   };
   createObj = (title, description, status) => {
     // console.log("from parent",title,description,status)
+    const user = this.props.auth0;
+    console.log(user.user.email)
     const obj = {
           title : title,
           description : description,
-          status:status
+          status:status,
+          email: user.user.email
         }
         console.log("obj",obj)
         axios
@@ -71,9 +77,13 @@ class BestBooks extends React.Component {
 
   };
   deleteBook= (id) => {
+    const user = this.props.auth0;
     console.log(id)
+    let obj={
+      email:user.user.email,
+    }
     axios
-    .delete(`${process.env.REACT_APP_URL}books/${id}`)
+    .delete(`${process.env.REACT_APP_URL}books/${id}`,{params:obj})
     .then(result =>{
       this.setState({
         books: result.data,
@@ -84,14 +94,18 @@ class BestBooks extends React.Component {
       console.log(err);
     })
   }
+  
   updateBook=(event)=>{
     event.preventDefault();
+    const user = this.props.auth0;
     let obj={
       title: event.target.title.value,
       description:event.target.description.value,
-      status:event.target.options.value
+      status:event.target.options.value,
+      email:user.user.email,
+      
     }
-    // console.log("obj",obj)
+    console.log("obj",obj)
     const id = this.state.selectedBook._id;
     // console.log("id",id)
     axios
@@ -100,6 +114,7 @@ class BestBooks extends React.Component {
       this.setState({
         books: result.data,
       })
+      console.log("books update",this.state.books)
       this.handleClose();
     })
     .catch(err=>{
@@ -111,6 +126,7 @@ class BestBooks extends React.Component {
 
   render() {
     /* TODO: render all the books in a Carousel */
+    
 
     return (
       <>
@@ -171,4 +187,4 @@ class BestBooks extends React.Component {
   }
 }
 
-export default BestBooks;
+export default withAuth0(BestBooks);
