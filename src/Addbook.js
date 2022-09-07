@@ -10,10 +10,6 @@ AddNewBook=(event)=>{
     let title=event.target.title.value
     let description=event.target.description.value
     let status=event.target.options.value
-    console.log("title",title)
-    console.log("description",description)
-    console.log("status",status)
-    // this.props.AddBook(title,description,status)
     this.props.handleClose()
     this.props.createObj(title,description,status)
 }
